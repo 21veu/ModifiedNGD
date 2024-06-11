@@ -1,0 +1,43 @@
+/home/yuyi/Documents/ModifiedNGD/utils/readData.py:18: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  return torch.tensor(x, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
+/home/yuyi/anaconda3/envs/ng/lib/python3.10/site-packages/torch/autograd/__init__.py:200: UserWarning: Using backward() with create_graph=True will create a reference cycle between the parameter and its gradient which can cause a memory leak. We recommend using autograd.grad when creating the graph to avoid this. If you have to use this function, make sure to reset the .grad fields of your parameters to None after use to break the cycle and avoid the leak. (Triggered internally at /opt/conda/conda-bld/pytorch_1682343967769/work/torch/csrc/autograd/engine.cpp:1151.)
+  Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+If Nan?  0
+tensor(86.9416, device='cuda:0', dtype=torch.float64)
+tensor(43.1183, device='cuda:0', dtype=torch.float64)
+tensor(1.6512, device='cuda:0', dtype=torch.float64)
+tensor(7.8369, device='cuda:0', dtype=torch.float64)
+tensor(28.6214, device='cuda:0', dtype=torch.float64)
+tensor(39.9179, device='cuda:0', dtype=torch.float64)
+tensor(5.8327, device='cuda:0', dtype=torch.float64)
+tensor(66.8070, device='cuda:0', dtype=torch.float64)
+perturbed 
+ tensor(86.9415, device='cuda:0', dtype=torch.float64)
+perturbed 
+ tensor(43.1183, device='cuda:0', dtype=torch.float64)
+perturbed 
+ tensor(1.5453, device='cuda:0', dtype=torch.float64)
+perturbed 
+ tensor(7.8070, device='cuda:0', dtype=torch.float64)
+perturbed 
+ tensor(28.5356, device='cuda:0', dtype=torch.float64)
+perturbed 
+ tensor(39.9179, device='cuda:0', dtype=torch.float64)
+perturbed 
+ tensor(5.7794, device='cuda:0', dtype=torch.float64)
+perturbed 
+ tensor(66.8723, device='cuda:0', dtype=torch.float64)
+Train info: 
+ train data shape: torch.Size([1024, 8]), 
+ train lable shape: torch.Size([1024, 1]), 
+ positive / negative: 0.5 / 0.5
+Test info: 
+ test data shape: torch.Size([512, 8]), 
+ test lable shape: torch.Size([512, 1]), , 
+ positive / negative: 0.1015625 / 0.8984375
+Valid info: 
+ valid data shape: torch.Size([512, 8]), valid lable shape: torch.Size([512, 1]), 
+ positive / negative: 0.083984375 / 0.916015625
+seed is  4
+---------------------------------------- NGD ----------------------------------------
+  0%|          | 0/200 [00:00<?, ?it/s]  0%|          | 1/200 [09:11<30:29:05, 551.48s/it]  1%|          | 2/200 [09:21<12:48:29, 232.88s/it]  2%|▏         | 3/200 [09:31<7:10:13, 131.03s/it]   2%|▏         | 4/200 [09:41<4:31:45, 83.19s/it]   2%|▎         | 5/200 [09:50<3:04:24, 56.74s/it]  3%|▎         | 6/200 [10:00<2:11:54, 40.80s/it]  4%|▎         | 7/200 [10:10<1:38:40, 30.68s/it]  4%|▍         | 8/200 [10:20<1:16:56, 24.04s/it]  4%|▍         | 9/200 [10:30<1:02:24, 19.60s/it]  5%|▌         | 10/200 [10:40<52:32, 16.59s/it]   6%|▌         | 11/200 [19:52<9:28:44, 180.55s/it]  6%|▌         | 12/200 [20:02<6:43:00, 128.62s/it]  6%|▋         | 13/200 [20:12<4:48:43, 92.64s/it]   7%|▋         | 14/200 [20:21<3:29:39, 67.63s/it]  8%|▊         | 15/200 [20:31<2:34:49, 50.21s/it]  8%|▊         | 16/200 [20:41<1:56:43, 38.06s/it]  8%|▊         | 17/200 [20:51<1:30:12, 29.58s/it]  9%|▉         | 18/200 [21:01<1:11:43, 23.65s/it] 10%|▉         | 19/200 [21:11<58:49, 19.50s/it]  

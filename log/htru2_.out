@@ -1,0 +1,28 @@
+If Nan?  0
+Train info: 
+ train data shape: torch.Size([512, 8]), 
+ train lable shape: torch.Size([512, 1]), 
+ positive / negative: 0.875 / 0.125
+Test info: 
+ test data shape: torch.Size([128, 8]), 
+ test lable shape: torch.Size([128, 1]), , 
+ positive / negative: 0.5 / 0.5
+Valid info: 
+ valid data shape: torch.Size([128, 8]), valid lable shape: torch.Size([128, 1]), 
+ positive / negative: 0.5 / 0.5
+seed is  16
+---------------------------------------- NGD ----------------------------------------
+Traceback (most recent call last):
+  File "/home/yuyi/Documents/ModifiedNGD/train_H.py", line 285, in <module>
+    model = MLP_H().to(device)
+  File "/home/yuyi/anaconda3/envs/ng/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1145, in to
+    return self._apply(convert)
+  File "/home/yuyi/anaconda3/envs/ng/lib/python3.10/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/yuyi/anaconda3/envs/ng/lib/python3.10/site-packages/torch/nn/modules/module.py", line 820, in _apply
+    param_applied = fn(param)
+  File "/home/yuyi/anaconda3/envs/ng/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1143, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+  File "/home/yuyi/anaconda3/envs/ng/lib/python3.10/site-packages/torch/cuda/__init__.py", line 247, in _lazy_init
+    torch._C._cuda_init()
+RuntimeError: No CUDA GPUs are available

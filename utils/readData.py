@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import random
 from torchvision import datasets
 import torchvision.transforms as transforms
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -27,7 +28,7 @@ batch_size = 16
 # percentage of training set to use as validation
 valid_size = 0.2
 
-def read_dataset(batch_size=16,valid_size=0.,num_workers=0, data_path = './data/perturb'):
+def read_dataset(batch_size=256,valid_size=0.,num_workers=0, data_path = './data/perturb'):
     """
     batch_size: Number of loaded drawings per batch
     valid_size: Percentage of training set to use as validation
@@ -83,8 +84,51 @@ def read_dataset(batch_size=16,valid_size=0.,num_workers=0, data_path = './data/
 
     return train_loader,valid_loader,test_loader,monte_loader
 
+
+def read_dataset_H(batch_size=256,valid_size=0.,num_workers=0, data_path = './data/htru2'):
+    """
+    batch_size: Number of loaded drawings per batch
+    valid_size: Percentage of training set to use as validation
+    num_workers: Number of subprocesses to use for data loading
+    data_path: The path of the data
+    """
+    train_data  = torch.from_numpy(np.load(data_path+'/train_data.npy')).to(device)
+    valid_data  = torch.from_numpy(np.load(data_path+'/valid_data.npy')).to(device)
+    test_data   = torch.from_numpy(np.load(data_path+'/test_data.npy')).to(device)
+    train_label = torch.from_numpy(np.load(data_path+'/train_label.npy')).to(device)
+    valid_label = torch.from_numpy(np.load(data_path+'/valid_label.npy')).to(device)
+    test_label  = torch.from_numpy(np.load(data_path+'/test_label.npy')).to(device)
+    
+    
+    print(f'Train info: \n train data shape: {train_data.shape}, \n train lable shape: {train_label.shape}, \n positive / negative: {float(torch.sum(train_label)/train_label.shape[0])} / {float((train_label.shape[0]-torch.sum(train_label))/train_label.shape[0])}')
+    print(f'Test info: \n test data shape: {test_data.shape}, \n test lable shape: {test_label.shape}, , \n positive / negative: {float(torch.sum(test_label)/test_label.shape[0])} / {float((test_label.shape[0]-torch.sum(test_label))/test_label.shape[0])}')
+    print(f'Valid info: \n valid data shape: {valid_data.shape}, valid lable shape: {valid_label.shape}, \n positive / negative: {float(torch.sum(valid_label)/valid_label.shape[0])} / {float((valid_label.shape[0]-torch.sum(valid_label))/valid_label.shape[0])}')
+
+    train_data = MyDataset(torch.cat([train_data, train_label], dim=1))        # (14317,9)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True) 
+    valid_data = MyDataset(torch.cat([valid_data, valid_label], dim=1))        # (1790,9)
+    valid_loader = DataLoader(valid_data, batch_size=batch_size, shuffle=True) 
+    test_data = MyDataset(torch.cat([test_data, test_label], dim=1))           # (1790,9)
+    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
+    # obtain training indices that will be used for validation
+    num_train = len(train_data)
+    indices = list(range(num_train))
+    # random indices
+    np.random.shuffle(indices)
+    # the ratio of split
+    split = int(np.floor(valid_size * num_train))
+    # divide data to radin_data and valid_data
+    train_idx, valid_idx = indices[split:], indices[:split]
+
+    # define samplers for obtaining training and validation batches
+    # 无放回地按照给定的索引列表采样样本元素
+    train_sampler = SubsetRandomSampler(train_idx)
+    valid_sampler = SubsetRandomSampler(valid_idx)
+
+
+    return train_loader,valid_loader,test_loader
+
+
 if __name__ == '__main__':
-    # perturb = 'perturb'
-    perturb = 'without_perturb'
-    train_loader,valid_loader,test_loader,monte_loader = read_dataset(batch_size=256, data_path=f'./data/{perturb}')
-    print(len(train_loader.sampler))
+    train_loader,valid_loader,test_loader = read_dataset_H(batch_size=256, data_path='./data/htru2/')
+    print(len(valid_loader.sampler))
