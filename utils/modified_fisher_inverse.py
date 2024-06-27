@@ -180,7 +180,8 @@ def modified_Fisher_inverse(model,
         # Lambda2_inverse = torch.where((criterion>0), 0, Lambda2_inverse)
         Lambda2_inverse = torch.where(Lambda2_inverse>threshold2, threshold2, Lambda2_inverse)*sample_num*torch.tensor(sigma2,device=device)
         diag_of_modified_Fisher_inverse =  torch.cat([Lambda2_inverse, torch.zeros(param_num-Lambda2_inverse.shape[0], device=device)])
-        F_inverse_modified = (V) @ (diag_of_modified_Fisher_inverse * V.T)
+        # F_inverse_modified = (V) @ (diag_of_modified_Fisher_inverse * V.T)
+        F_inverse_modified = [V, diag_of_modified_Fisher_inverse]
         # print('max of F', torch.max(F_inverse_modified))
         # print('mean of F', torch.mean(F_inverse_modified))
         del V, V_t, uTa, uTa_t

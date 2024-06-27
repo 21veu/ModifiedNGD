@@ -63,7 +63,7 @@ class ModifiedNGD(Optimizer):
 
         shape_list = [d_p_list[i].shape for i in range(len(d_p_list))]
         reshaped_d_p = torch.cat([d_p_list[i].reshape(-1,1) for i in range(len(d_p_list))], dim=0)
-        d_p_list = self.F_inverse_modified @ reshaped_d_p
+        d_p_list = self.F_inverse_modified[0] @ ((self.F_inverse_modified[1] * self.F_inverse_modified[0].T) @ reshaped_d_p)
         # d_p_list = torch.linalg.solve(self.F_inverse_modified, reshaped_d_p)
         len_list = []
         for i in range(len(shape_list)):
