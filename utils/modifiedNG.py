@@ -2,9 +2,9 @@ import torch
 from torch import Tensor
 from torch.optim.optimizer import Optimizer, required, _use_grad_for_differentiable
 from typing import List, Optional
+import numpy as np
 import os
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
-
 
 class ModifiedNGD(Optimizer):
     def __init__(self, params, lr=required, momentum=0, dampening=0,
@@ -19,6 +19,10 @@ class ModifiedNGD(Optimizer):
             raise ValueError("Invalid momentum value: {}".format(momentum))
         if weight_decay < 0.0:
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
+        # self.params = params
+        # for i,z in enumerate(self.params):
+        #     print('Entered! ')
+        # print('params check ?1: ', self.params)
         self.F_inverse_modified = F_inverse_modified
         defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
                         weight_decay=weight_decay, nesterov=nesterov,
@@ -46,25 +50,52 @@ class ModifiedNGD(Optimizer):
         if closure is not None:
             with torch.enable_grad():
                 loss = closure()
-        # yuyi = 1
         params_with_grad = []
         d_p_list = []
         momentum_buffer_list = []
         has_sparse_grad = False
+        P_check = []
         for group in self.param_groups:
-            for p in group['params']:
+            for p in group['params']:     
+                # print('GROUP params:   ', p.shape)           
+                # P_check.append(p.reshape(-1))
+                # print('param shape check: ', p.shape)
                 if p.grad is not None:   
                     params_with_grad.append(p)
+                    # print('\np.gradient check| max: ', torch.max(p.grad), ' | min: ', torch.min(p.grad))
                     d_p_list.append(p.grad)
+                    # print('GROUP params grad shape:   ', p.grad.shape)
                     if p.grad.is_sparse:
                         has_sparse_grad = True
 
                     state = self.state[p]
+        # print('step params check? : ', self.params)
+        # for i,z in enumerate(self.params):
+        #     print('Entered! ')
+        #     p = z
+        #     P_check.append(p.reshape(-1))
+        #     # print('param shape check: ', p.shape)
+        #     if p.grad is not None:   
+        #         params_with_grad.append(p)
+        #         # print('\np.gradient check| max: ', torch.max(p.grad), ' | min: ', torch.min(p.grad))
+        #         d_p_list.append(p.grad)
+        #         if p.grad.is_sparse:
+        #             has_sparse_grad = True
 
+        #         state = self.state[p]
+        # torch.save(torch.cat(P_check), 'P_check_in_optimizer.pt')
         shape_list = [d_p_list[i].shape for i in range(len(d_p_list))]
-        reshaped_d_p = torch.cat([d_p_list[i].reshape(-1,1) for i in range(len(d_p_list))], dim=0)
-        d_p_list = self.F_inverse_modified[0] @ ((self.F_inverse_modified[1] * self.F_inverse_modified[0].T) @ reshaped_d_p)
-        # d_p_list = torch.linalg.solve(self.F_inverse_modified, reshaped_d_p)
+        reshaped_d_p = torch.cat([d_p_list[i].reshape(-1,1) for i in range(len(d_p_list))], dim=0)  # shape (P,1)
+        # print('Shape CHECK: ', self.F_inverse_modified[0].shape, self.F_inverse_modified[1].shape, 'reshaped_d_p.shape ', reshaped_d_p.shape)  # shape (P,P), (P,), (P,1)
+        # d_p_list = self.F_inverse_modified[0] @ ((self.F_inverse_modified[1] * self.F_inverse_modified[0].T) @ reshaped_d_p)
+        # d_p_list = (self.F_inverse_modified[0] * self.F_inverse_modified[1]) @ (self.F_inverse_modified[0].T @ reshaped_d_p)
+        # print('Computation check: ', self.F_inverse_modified[0]@self.F_inverse_modified[0].T, self.F_inverse_modified[0].T@self.F_inverse_modified[0])
+        # d_p_list = torch.linalg.solve((self.F_inverse_modified[0] * self.F_inverse_modified[1]) @ (self.F_inverse_modified[0].T), reshaped_d_p)
+        d_p_list = torch.linalg.solve(((self.F_inverse_modified)@(self.F_inverse_modified.T)) @ ((self.F_inverse_modified)@(self.F_inverse_modified.T)), (self.F_inverse_modified)@reshaped_d_p)
+        d_p_list = (self.F_inverse_modified.T)@d_p_list
+
+        # print('d_p_list shape check: ', d_p_list.shape)
+        # print('\nupdate check| max: ', torch.max(d_p_list), ' | min: ', torch.min(d_p_list))
         len_list = []
         for i in range(len(shape_list)):
             l = 1

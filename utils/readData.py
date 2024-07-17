@@ -131,11 +131,9 @@ def read_dataset(batch_size=256,valid_size=0.,num_workers=0, data_path = './data
 if __name__ == '__main__':
     train_loader,valid_loader,test_loader = read_dataset(batch_size=1, data_path='./data/synthetic/perturbed_with_condition/u0.8')
     i = 0
-    for data, target in train_loader:
-        print(data, target, data[0,0]*data[0,1] - target, '\n')
-        i+=1
-        if i==5:
-            break
+    train_data = [data for data, _ in train_loader]
+    train_label = [label for _, label in train_loader]
+    print(torch.cat(train_data,dim=0).shape, torch.cat(train_label,dim=0).shape)
     # i = 0
     # for data, target in valid_loader:
     #     print(data, target, '\n')

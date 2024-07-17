@@ -30,7 +30,9 @@ class MLP_B(torch.nn.Module):   # 继承 torch 的 Module
     def forward(self,din):
         din = din.view(-1,2)       # 将一个多行的Tensor,拼接成一行
         dout = F.relu(self.fc1(din))   # 使用 relu 激活函数
-        dout = self.fc2(dout)  # 输出层使用 softmax 
+        # dout = F.relu(self.fc2(dout))  # 输出层使用 softmax 
+        # dout = F.relu(self.fc3(dout))
+        dout = self.fc2(dout) # 输出层使用 softmax 
         dout = self.fc3(dout)
         dout = self.fc4(dout)
         return dout
@@ -51,10 +53,37 @@ class MLP_H(torch.nn.Module):   # 继承 torch 的 Module
     def forward(self,din):
         din = din.view(-1,8)       # 将一个多行的Tensor,拼接成一行
         dout = F.relu(self.fc1(din))   # 使用 relu 激活函数
-        dout = self.fc2(dout)  # 输出层使用 softmax 
+        # dout = F.relu(self.fc2(dout))  # 输出层使用 softmax 
+        # dout = F.relu(self.fc3(dout))
+        dout = self.fc2(dout) # 输出层使用 softmax 
         dout = self.fc3(dout)
         dout = self.fc4(dout)
         # dout = self.sgm(dout)
+        return dout
+    
+    def loss_fun(self, t_p):
+        return t_p
+
+
+class MLP_M(torch.nn.Module):   # 继承 torch 的 Module
+    def __init__(self, input_size):
+        super(MLP_M,self).__init__()    # 
+        self.input_size = input_size 
+        self.fc1 = torch.nn.Linear(self.input_size,2**6) 
+        self.fc2 = torch.nn.Linear(2**6,2**4)  
+        self.fc3 = torch.nn.Linear(2**4,2**10) 
+        self.fc4 = torch.nn.Linear(2**10,1)
+
+        
+    def forward(self,din):
+        din = din.view(-1,self.input_size)       
+        dout = F.relu(self.fc1(din))  
+        # dout = self.fc2(dout)
+        # dout = self.fc3(dout)
+        dout = F.relu(self.fc2(dout))
+        dout = F.relu(self.fc3(dout))
+        dout = self.fc4(dout)
+
         return dout
     
     def loss_fun(self, t_p):

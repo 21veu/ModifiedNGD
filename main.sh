@@ -1,12 +1,27 @@
 #!/bin/bash
-n=66
-title='_semi_HN_05_14_D1em1_Dmax1em0_r01_w1em4'
-perturb_rate=1.1
+mkdir -p ./log
 
+mydate=$(date +"%Y_%m_%d_%H_%M_%S")
 
-mpirun -n $n --hostfile hostfile --mca btl_tcp_if_include ib0 python script_BFGS.py \
---title $title \
+device=cuda
+dataname=htru2
+n_epochs=300
+batch_size=128
+perturb_mode=original
+sigma=1
 
->./log/Fields$SGD_indicator$title.out 2>&1 
+# conda init
+# conda activate ng
+
+python train.py \
+--date $mydate \
+--device $device \
+--data_name $dataname \
+--n_epochs $n_epochs \
+--batch_size $batch_size \
+--perturb_mode $perturb_mode \
+--sigma $sigma \
+--MNGD \
+>./log/$dataname_$perturb_mode_$sigma_$mydate.out 2>&1 
  
 
