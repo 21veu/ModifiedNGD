@@ -14,11 +14,20 @@ mydate=$(date +"%Y_%m_%d_%H_%M_%S")
 
 device=cuda
 dataname=synthetic
-n_epochs=100
-batch_size=256
+n_epochs=10
+batch_size=1024
 perturbmode=original
-sigma=5
-u=0.7
+sigma=2
+u=2
+
+if [ "$perturbmode" == "noise" ];then
+    title="Test_${dataname}_${perturbmode}_sigma${sigma}"
+elif [ "$perturbmode" == "condition" ]; then
+    title="Test_${dataname}_${perturbmode}_u${u}"
+else
+    title="Test_${dataname}_${perturbmode}"
+fi
+
 
 
 CUDA_VISIBLE_DEVICES=1 python train.py \
@@ -31,5 +40,5 @@ CUDA_VISIBLE_DEVICES=1 python train.py \
 --sigma $sigma \
 --u $u \
 --MNGD \
->./log/aaatest$dataname$perturbmode$sigma$mydate.out 2>&1 
- 
+>./log/"${title}_${mydate}".out 2>&1 
+

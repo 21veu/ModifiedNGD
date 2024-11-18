@@ -5,48 +5,56 @@ import os
 
 def generate_synthetic():
     device='cpu'
-    train_data = torch.rand(256, device=device)
-    valid_data = torch.rand(64, device=device)
-    test_data  = torch.rand(64, device=device)
-    monte_data = torch.rand(1024, device=device)
+    DATA = torch.rand(512+128+128, device=device)*2*np.pi
+    train_data = DATA[:512].reshape(-1,1)
+    valid_data = DATA[512:512+128].reshape(-1,1)
+    test_data  = DATA[512+128:].reshape(-1,1)
+    print('Mean train/test/valid: ', torch.mean(train_data), torch.mean(test_data), torch.mean(valid_data))
+    # monte_data = torch.rand(1024, device=device)*2*np.pi
 
-    train_data = torch.stack([torch.cos(train_data), torch.sin(train_data)]).T
-    valid_data  = torch.stack([torch.cos(valid_data), torch.sin(valid_data)]).T
-    test_data  = torch.stack([torch.cos(test_data), torch.sin(test_data)]).T
+    # train_data = torch.stack([torch.cos(train_data), torch.sin(train_data)]).T
+    # valid_data  = torch.stack([torch.cos(valid_data), torch.sin(valid_data)]).T
+    # test_data  = torch.stack([torch.cos(test_data), torch.sin(test_data)]).T
     # monte_data = torch.stack([torch.cos(monte_data), torch.sin(monte_data)]).T
-    train_label = (train_data[:,[0]]*train_data[:,[1]])
-    valid_label  = (valid_data[:,[0]]*valid_data[:,[1]])
-    test_label  = (test_data[:,[0]]*test_data[:,[1]])
+    train_label = torch.cos(train_data)*torch.sin(train_data)
+    valid_label  = torch.cos(valid_data)*torch.sin(valid_data)
+    test_label  = torch.cos(test_data)*torch.sin(test_data)
     # monte_label = (monte_data[:,[0]]*monte_data[:,[1]])
-    print('data shape', train_data.shape, train_label.shape)
-    for u in [0.7,0.75,0.8,0.85,0.9,0.95]:
+    print(f'Train info: \n train data shape: {train_data.shape}, \n train lable shape: {train_label.shape}, \n positive / negative: {float(torch.sum(train_label)/train_label.shape[0])} / {float((train_label.shape[0]-torch.sum(train_label))/train_label.shape[0])}')
+    print(f'Test info: \n test data shape: {test_data.shape}, \n test lable shape: {test_label.shape}, , \n positive / negative: {float(torch.sum(test_label)/test_label.shape[0])} / {float((test_label.shape[0]-torch.sum(test_label))/test_label.shape[0])}')
+    print(f'Valid info: \n valid data shape: {valid_data.shape}, valid lable shape: {valid_label.shape}, \n positive / negative: {float(torch.sum(valid_label)/valid_label.shape[0])} / {float((valid_label.shape[0]-torch.sum(valid_label))/valid_label.shape[0])}')
+    for u in range(4):
         save_path = f'./data/synthetic/perturbed_with_condition/u{u}/'
         if os.path.isdir(save_path) is False:
             os.mkdir(save_path)
-        sigma = -0.25/np.log(u)
-        perturbed_train_data = train_data*torch.exp(-torch.pow(1-train_data,2)/sigma)
+        sigma = 10**(u-2)
+        perturbed_train_data = train_data + train_data*(2*np.pi-train_data)*(2*torch.rand(*train_data.shape) -1.)*np.sqrt(sigma)*45/2/(2*np.pi)**4
         np.save(save_path+'train_data.npy', perturbed_train_data.numpy())
+        print('Discrenpacy norm error: ', torch.linalg.norm(torch.cos(perturbed_train_data)*torch.sin(perturbed_train_data) - train_label))
         np.save(save_path+'valid_data.npy', valid_data.numpy())
         np.save(save_path+'test_data.npy', test_data.numpy())
         np.save(save_path+'train_label.npy', train_label.numpy())
         np.save(save_path+'valid_label.npy', valid_label.numpy())
         np.save(save_path+'test_label.npy', test_label.numpy())
-    for delta in range(11):
+    for delta in range(4):
         save_path = f'./data/synthetic/perturbed_with_noise/10pm{delta}/'
         if os.path.isdir(save_path) is False:
             os.mkdir(save_path)
+        sigma = 10**(delta-2)
         # print('dsadas', np.power(10., -delta)*torch.randn(*train_data.shape))
-        perturbed_train_data = train_data + np.power(10., -delta)*torch.randn(*train_data.shape)
+        perturbed_train_data = train_data + 0.05*np.sqrt(sigma)*torch.randn(*train_data.shape)
         np.save(save_path+'train_data.npy', perturbed_train_data.numpy())
+        print('Discrenpacy norm error: ', torch.linalg.norm(torch.cos(perturbed_train_data)*torch.sin(perturbed_train_data) - train_label))
         np.save(save_path+'valid_data.npy', valid_data.numpy())
         np.save(save_path+'test_data.npy', test_data.numpy())
         np.save(save_path+'train_label.npy', train_label.numpy())
         np.save(save_path+'valid_label.npy', valid_label.numpy())
         np.save(save_path+'test_label.npy', test_label.numpy())
-    save_path = f'./data/synthetic/original/'
+    save_path = './data/synthetic/original/'
     if os.path.isdir(save_path) is False:
         os.mkdir(save_path)
     np.save(save_path+'train_data.npy', train_data.numpy())
+    print('Discrenpacy norm error: ', torch.linalg.norm(torch.cos(train_data)*torch.sin(train_data) - train_label))
     np.save(save_path+'valid_data.npy', valid_data.numpy())
     np.save(save_path+'test_data.npy', test_data.numpy())
     np.save(save_path+'train_label.npy', train_label.numpy())
@@ -400,5 +408,7 @@ def generate_houseprice():
     np.save(save_path+'test_label.npy', test_label)
 
 if __name__=='__main__':
-    generate_houseprice()
+    generate_synthetic()
+    
+
 

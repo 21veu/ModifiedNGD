@@ -99,9 +99,9 @@ def read_dataset(batch_size=256,valid_size=0.,num_workers=0, data_path = './data
     test_label  = torch.from_numpy(np.load(data_path+'/test_label.npy')).to(device)
     
     
-    print(f'Train info: \n train data shape: {train_data.shape}, \n train lable shape: {train_label.shape}, \n positive / negative: {float(torch.sum(train_label)/train_label.shape[0])} / {float((train_label.shape[0]-torch.sum(train_label))/train_label.shape[0])}')
-    print(f'Test info: \n test data shape: {test_data.shape}, \n test lable shape: {test_label.shape}, , \n positive / negative: {float(torch.sum(test_label)/test_label.shape[0])} / {float((test_label.shape[0]-torch.sum(test_label))/test_label.shape[0])}')
-    print(f'Valid info: \n valid data shape: {valid_data.shape}, valid lable shape: {valid_label.shape}, \n positive / negative: {float(torch.sum(valid_label)/valid_label.shape[0])} / {float((valid_label.shape[0]-torch.sum(valid_label))/valid_label.shape[0])}')
+    print(f'Train info: \n train data shape: {train_data.shape}, \n train lable shape: {train_label.shape}, \n positive / negative: {float(torch.sum(train_label)/train_label.shape[0])} / {float((train_label.shape[0]-torch.sum(train_label))/train_label.shape[0])}, \n discrepancy norm error: {torch.linalg.norm(torch.cos(train_data)*torch.sin(train_data) - train_label)}')
+    print(f'Test info: \n test data shape: {test_data.shape}, \n test lable shape: {test_label.shape}, , \n positive / negative: {float(torch.sum(test_label)/test_label.shape[0])} / {float((test_label.shape[0]-torch.sum(test_label))/test_label.shape[0])}, \n discrepancy norm error: {torch.linalg.norm(torch.cos(test_data)*torch.sin(test_data) - test_label)}')
+    print(f'Valid info: \n valid data shape: {valid_data.shape}, valid lable shape: {valid_label.shape}, \n positive / negative: {float(torch.sum(valid_label)/valid_label.shape[0])} / {float((valid_label.shape[0]-torch.sum(valid_label))/valid_label.shape[0])}, \n discrepancy norm error: {torch.linalg.norm(torch.cos(valid_data)*torch.sin(valid_data) - valid_label)}')
 
     train_data = MyDataset(torch.cat([train_data, train_label], dim=1))        # (14317,9)
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True) 
@@ -129,11 +129,11 @@ def read_dataset(batch_size=256,valid_size=0.,num_workers=0, data_path = './data
 
 
 if __name__ == '__main__':
-    train_loader,valid_loader,test_loader = read_dataset(batch_size=1, data_path='./data/synthetic/perturbed_with_condition/u0.8')
+    train_loader,valid_loader,test_loader = read_dataset(batch_size=1, data_path='./data/synthetic/perturbed_with_noise/10pm1')
     i = 0
-    train_data = [data for data, _ in train_loader]
-    train_label = [label for _, label in train_loader]
-    print(torch.cat(train_data,dim=0).shape, torch.cat(train_label,dim=0).shape)
+    # train_data = [data for data, _ in train_loader]
+    # train_label = [label for _, label in train_loader]
+    # print(torch.cat(train_data,dim=0).shape, torch.cat(train_label,dim=0).shape)
     # i = 0
     # for data, target in valid_loader:
     #     print(data, target, '\n')

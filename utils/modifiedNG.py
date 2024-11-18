@@ -4,14 +4,14 @@ from torch.optim.optimizer import Optimizer, required, _use_grad_for_differentia
 from typing import List, Optional
 import numpy as np
 import os
-os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+# os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
 class ModifiedNGD(Optimizer):
     def __init__(self, params, lr=required, momentum=0, dampening=0,
                  weight_decay=0, nesterov=False, *, maximize=False, foreach: Optional[bool] = None,
-                 differentiable=False, F_inverse_modified):
+                 differentiable=False, F_modified):
         '''
-        F_inverse_modified: the Fisher inverse modified by the criterion
+        F_modified: the Fisher inverse modified by the criterion  [J, U, Lambda2, Lambda2_modified]
         '''
         if lr is not required and lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
@@ -23,11 +23,11 @@ class ModifiedNGD(Optimizer):
         # for i,z in enumerate(self.params):
         #     print('Entered! ')
         # print('params check ?1: ', self.params)
-        self.F_inverse_modified = F_inverse_modified
+        self.F_modified = F_modified
         defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
                         weight_decay=weight_decay, nesterov=nesterov,
                         maximize=maximize, foreach=foreach,
-                        differentiable=differentiable, F_inverse_modified = F_inverse_modified)
+                        differentiable=differentiable, F_modified = F_modified)
         super(ModifiedNGD, self).__init__(params, defaults)
 
     def __setstate__(self, state):
@@ -54,7 +54,7 @@ class ModifiedNGD(Optimizer):
         d_p_list = []
         momentum_buffer_list = []
         has_sparse_grad = False
-        P_check = []
+        # P_check = []
         for group in self.param_groups:
             for p in group['params']:     
                 # print('GROUP params:   ', p.shape)           
@@ -86,13 +86,43 @@ class ModifiedNGD(Optimizer):
         # torch.save(torch.cat(P_check), 'P_check_in_optimizer.pt')
         shape_list = [d_p_list[i].shape for i in range(len(d_p_list))]
         reshaped_d_p = torch.cat([d_p_list[i].reshape(-1,1) for i in range(len(d_p_list))], dim=0)  # shape (P,1)
-        # print('Shape CHECK: ', self.F_inverse_modified[0].shape, self.F_inverse_modified[1].shape, 'reshaped_d_p.shape ', reshaped_d_p.shape)  # shape (P,P), (P,), (P,1)
-        # d_p_list = self.F_inverse_modified[0] @ ((self.F_inverse_modified[1] * self.F_inverse_modified[0].T) @ reshaped_d_p)
-        # d_p_list = (self.F_inverse_modified[0] * self.F_inverse_modified[1]) @ (self.F_inverse_modified[0].T @ reshaped_d_p)
-        # print('Computation check: ', self.F_inverse_modified[0]@self.F_inverse_modified[0].T, self.F_inverse_modified[0].T@self.F_inverse_modified[0])
-        # d_p_list = torch.linalg.solve((self.F_inverse_modified[0] * self.F_inverse_modified[1]) @ (self.F_inverse_modified[0].T), reshaped_d_p)
-        d_p_list = torch.linalg.solve(((self.F_inverse_modified)@(self.F_inverse_modified.T)) @ ((self.F_inverse_modified)@(self.F_inverse_modified.T)), (self.F_inverse_modified)@reshaped_d_p)
-        d_p_list = (self.F_inverse_modified.T)@d_p_list
+        # torch.save(reshaped_d_p, 'J_L.pt')
+        # print('Shape CHECK: ', self.F_modified[0].shape, self.F_modified[1].shape, 'reshaped_d_p.shape ', reshaped_d_p.shape)  # shape (P,P), (++P,), (P,1)
+        # d_p_list = self.F_modified[0] @ ((self.F_modified[1] * self.F_modified[0].T) @ reshaped_d_p)
+        # d_p_list = (self.F_modified[0] * self.F_modified[1]) @ (self.F_modified[0].T @ reshaped_d_p)
+        # print('Computation check: ', self.F_modified[0]@self.F_modified[0].T, self.F_modified[0].T@self.F_modified[0])
+        # d_p_list = torch.linalg.solve((self.F_modified[0] * self.F_modified[1]) @ (self.F_modified[0].T), reshaped_d_p)
+        print('max of grad d_p: ', torch.max(reshaped_d_p))
+        print('min of grad d_p: ', torch.min(reshaped_d_p))
+        J, U, Lambda2, Lambda2_modified, alpha = self.F_modified
+        K = J@J.T 
+
+        Jta = J.T@alpha/J.shape[0]
+        print('max|min: (J_L, Jta/N) ',f'({torch.max(reshaped_d_p)}, {torch.max(Jta)}, ratio: {torch.max(Jta)/torch.max(reshaped_d_p)})|({torch.min(reshaped_d_p)}, {torch.min(Jta)})' )
+        res = reshaped_d_p.reshape(-1) - Jta.reshape(-1)
+        print('\n check Jacobi res: ', res.shape, 'max: ', torch.max(res), 'mean: ', torch.mean(res), 'min: ', torch.min(res), 'norm: ', torch.linalg.norm(res), 'MSE: ', torch.linalg.norm(res)/res.shape[0])
+
+
+        if torch.linalg.norm(res)/res.shape[0] >= 1e-6:
+            print('BAD Jacobian OCCURS!')
+            # learningrate = group['lr']
+            # d_p_list = reshaped_d_p
+        test_gradient = reshaped_d_p
+        test_solve = torch.linalg.solve(torch.matmul(K,K), torch.matmul(J, test_gradient))
+        test_solve = torch.matmul(J.T, test_solve)
+        # print('Shape check: ', torch.matmul(J.T, torch.matmul(J, test_solve)).shape, test_gradient.shape)
+        res = torch.abs(torch.matmul(J.T, torch.matmul(J, test_solve)) - test_gradient)
+        print('\n check NTK dimension reduction res: ', res.shape, 'max: ', torch.max(res), 'mean: ', torch.mean(res), 'min: ', torch.min(res), 'norm: ', torch.linalg.norm(res), 'MSE: ', torch.linalg.norm(res)/res.shape[0])
+        sigma02 = 1e-2
+        d_p_list = torch.linalg.solve(K@(U@torch.diag_embed(0.9*Lambda2_modified/Lambda2+0.1)@U.T)@K, J@reshaped_d_p*sigma02*J.shape[0])
+        # d_p_list = torch.linalg.solve((self.F_modified[0]@self.F_modified[0].T) @ (self.F_modified[0]@self.F_modified[0].T) + (torch.rand(1, device=self.F_modified[0].device) *0.9 + 0.1) *self.F_modified[0]@self.F_modified[0].T, self.F_modified[0]@reshaped_d_p*self.F_modified[1])
+        d_p_list = (J.T)@d_p_list
+        learningrate = group['lr']
+
+        print('Shape check: ', d_p_list.shape)
+        print('max of d_p_list: ', torch.max(d_p_list)) 
+        print('min of d_p_list: ', torch.min(d_p_list))
+        # d_p_list = torch.linalg.solve((self.F_modified.T) @ (self.F_modified), reshaped_d_p)
 
         # print('d_p_list shape check: ', d_p_list.shape)
         # print('\nupdate check| max: ', torch.max(d_p_list), ' | min: ', torch.min(d_p_list))
@@ -110,7 +140,7 @@ class ModifiedNGD(Optimizer):
                 momentum_buffer_list,
                 weight_decay=group['weight_decay'],
                 momentum=group['momentum'],
-                lr=group['lr'],
+                lr=learningrate,
                 dampening=group['dampening'],
                 nesterov=group['nesterov'],
                 maximize=group['maximize'],

@@ -1,0 +1,315 @@
+/nishome/yui/ModifiedNGD/utils/readData.py:18: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  return torch.tensor(x, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
+/nishome/yui/anaconda3/envs/ng/lib/python3.12/site-packages/torch/autograd/graph.py:744: UserWarning: Using backward() with create_graph=True will create a reference cycle between the parameter and its gradient which can cause a memory leak. We recommend using autograd.grad when creating the graph to avoid this. If you have to use this function, make sure to reset the .grad fields of your parameters to None after use to break the cycle and avoid the leak. (Triggered internally at /opt/conda/conda-bld/pytorch_1716905971214/work/torch/csrc/autograd/engine.cpp:1203.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+Train info: 
+ train data shape: torch.Size([512, 1]), 
+ train lable shape: torch.Size([512, 1]), 
+ positive / negative: 0.021206805482506752 / 0.978793203830719, 
+ discrepancy norm error: 5.045955617788422e-07
+Test info: 
+ test data shape: torch.Size([128, 1]), 
+ test lable shape: torch.Size([128, 1]), , 
+ positive / negative: -0.030759211629629135 / 1.0307592153549194, 
+ discrepancy norm error: 2.750667249529215e-07
+Valid info: 
+ valid data shape: torch.Size([128, 1]), valid lable shape: torch.Size([128, 1]), 
+ positive / negative: 0.015859205275774002 / 0.9841408133506775, 
+ discrepancy norm error: 2.3576444618811365e-07
+torch.Size([512, 1]) torch.Size([512])
+seed is  2191
+---------------------------------------- NGD ----------------------------------------
+OUTPUT CHECK:  torch.Size([512]) tensor(0.4350, device='cuda:0', grad_fn=<MaxBackward1>) tensor(0.4265, device='cuda:0', grad_fn=<MinBackward1>) 
+TARGET:  torch.Size([512]) tensor(0.5000, device='cuda:0') tensor(-0.5000, device='cuda:0')
+max of Lambda2 tensor(540.3308, device='cuda:0')
+min of Lambda2 tensor(0.0100, device='cuda:0')
+eigenvalues preserved:  512
+  0%|          | 0/10 [00:00<?, ?it/s]Epoch:   1
+max of Lambda2 tensor(540.3310, device='cuda:0')
+min of Lambda2 tensor(0.0100, device='cuda:0')
+eigenvalues preserved:  512
+Test train Loss:  0.14700697362422943
+Test train Acc:  0.0
+Test Loss:  0.16849945485591888
+Test Acc:  0.0
+Valid Loss:  0.14777937531471252
+Valid Acc:  0.0
+max of grad d_p:  tensor(0.4087, device='cuda:0')
+min of grad d_p:  tensor(-0.0670, device='cuda:0')
+J_L:  tensor([[-3.6956e-04],
+        [ 5.9764e-03],
+        [-4.2803e-05],
+        [-8.6730e-04],
+        [-1.9192e-05],
+        [ 1.2872e-03],
+        [-2.8445e-05],
+        [-1.1580e-04],
+        [ 6.3527e-05],
+        [-1.4054e-03],
+        [ 9.2421e-06],
+        [ 1.3501e-04],
+        [-2.8522e-04],
+        [ 2.4842e-02],
+        [-5.8786e-05],
+        [-1.6543e-03],
+        [-8.5565e-04],
+        [ 1.0934e-02],
+        [-2.7735e-03],
+        [ 3.2603e-03],
+        [-7.7075e-04],
+        [ 6.3816e-04],
+        [ 3.9007e-02],
+        [ 1.0467e-02],
+        [-5.1574e-02],
+        [-6.7022e-02],
+        [ 4.0870e-01]], device='cuda:0') 
+Jta:  tensor([-2.0903e-04,  4.7139e-03, -6.7376e-05, -5.7091e-04,  2.8584e-04,
+         1.1482e-03, -7.4212e-05, -2.4580e-05,  3.5843e-05, -1.3007e-03,
+         2.9619e-05,  1.4639e-04, -1.5856e-04,  1.9666e-02, -1.5684e-04,
+        -1.5095e-03, -9.5217e-04,  9.9161e-03, -2.8997e-03,  2.3814e-03,
+        -8.9779e-04,  4.7228e-04,  3.7690e-02,  1.1162e-02, -5.2639e-02,
+        -6.6718e-02,  4.0870e-01], device='cuda:0')
+max|min: (J_L, Jta/N)  (0.4087013006210327, 0.4087013304233551, ratio: 1.0000001192092896)|(-0.06702195107936859, -0.06671802699565887)
+
+ check Jacobi res:  torch.Size([27]) max:  tensor(0.0052, device='cuda:0') mean:  tensor(0.0003, device='cuda:0') min:  tensor(-0.0007, device='cuda:0') norm:  tensor(0.0058, device='cuda:0') MSE:  tensor(0.0002, device='cuda:0')
+BAD Jacobian OCCURS!
+
+ check NTK dimension reduction res:  torch.Size([27, 1]) max:  tensor(0.0002, device='cuda:0') mean:  tensor(5.1273e-05, device='cuda:0') min:  tensor(4.3778e-07, device='cuda:0') norm:  tensor(0.0004, device='cuda:0') MSE:  tensor(1.3999e-05, device='cuda:0')
+Shape check:  torch.Size([27, 1])
+max of d_p_list:  tensor(0.0325, device='cuda:0')
+min of d_p_list:  tensor(-0.0074, device='cuda:0')
+Epoch:  1  
+Training Loss: 0.14637983587454073
+Test Loss:  0.1676170527935028
+Test Acc:  0.0
+Valid Loss:  0.14691613614559174
+Valid Acc:  0.0
+local minima detector shape:  (0,)
+Preserved_eigens number check:  512
+ 10%|█         | 1/10 [00:02<00:21,  2.40s/it]Epoch:   2
+max of Lambda2 tensor(539.8063, device='cuda:0')
+min of Lambda2 tensor(0.0100, device='cuda:0')
+eigenvalues preserved:  512
+max of grad d_p:  tensor(0.4068, device='cuda:0')
+min of grad d_p:  tensor(-0.0664, device='cuda:0')
+J_L:  tensor([[-3.2552e-04],
+        [ 4.1852e-03],
+        [-3.9676e-05],
+        [-7.5538e-04],
+        [-1.1395e-05],
+        [ 9.0328e-04],
+        [-2.6418e-05],
+        [-9.7574e-05],
+        [ 7.1617e-05],
+        [-1.8933e-03],
+        [ 9.9835e-06],
+        [ 1.6903e-04],
+        [-2.4458e-04],
+        [ 2.0540e-02],
+        [-5.2841e-05],
+        [-1.3932e-03],
+        [-1.0787e-03],
+        [ 9.1934e-03],
+        [-2.5278e-03],
+        [ 2.0628e-03],
+        [-8.1622e-04],
+        [ 4.6309e-04],
+        [ 3.6121e-02],
+        [ 1.1302e-02],
+        [-5.3200e-02],
+        [-6.6365e-02],
+        [ 4.0677e-01]], device='cuda:0') 
+Jta:  tensor([-8.7886e-05,  2.9256e-03, -7.7777e-05, -3.8854e-04,  3.6505e-04,
+         7.6262e-04, -8.6416e-05,  2.2663e-05,  4.3880e-05, -1.5855e-03,
+         3.9372e-05,  1.8193e-04, -1.3028e-04,  1.4513e-02, -1.7117e-04,
+        -1.2175e-03, -1.1911e-03,  8.0171e-03, -2.6996e-03,  1.1052e-03,
+        -9.9128e-04,  2.1303e-04,  3.4546e-02,  1.2207e-02, -5.4420e-02,
+        -6.5946e-02,  4.0677e-01], device='cuda:0')
+max|min: (J_L, Jta/N)  (0.40677058696746826, 0.40677058696746826, ratio: 1.0)|(-0.06636524200439453, -0.06594602018594742)
+
+ check Jacobi res:  torch.Size([27]) max:  tensor(0.0060, device='cuda:0') mean:  tensor(0.0004, device='cuda:0') min:  tensor(-0.0009, device='cuda:0') norm:  tensor(0.0068, device='cuda:0') MSE:  tensor(0.0003, device='cuda:0')
+BAD Jacobian OCCURS!
+
+ check NTK dimension reduction res:  torch.Size([27, 1]) max:  tensor(0.0003, device='cuda:0') mean:  tensor(6.1046e-05, device='cuda:0') min:  tensor(8.0327e-09, device='cuda:0') norm:  tensor(0.0005, device='cuda:0') MSE:  tensor(1.9391e-05, device='cuda:0')
+Shape check:  torch.Size([27, 1])
+max of d_p_list:  tensor(0.1314, device='cuda:0')
+min of d_p_list:  tensor(-0.0597, device='cuda:0')
+Epoch:  2  
+Training Loss: 0.14573678374290466
+Test Loss:  0.16741324961185455
+Test Acc:  0.0
+Valid Loss:  0.1466352790594101
+Valid Acc:  0.0
+local minima detector shape:  (1,)
+Preserved_eigens number check:  512
+ 20%|██        | 2/10 [00:04<00:18,  2.30s/it]Epoch:   3
+max of Lambda2 tensor(538.9669, device='cuda:0')
+min of Lambda2 tensor(0.0100, device='cuda:0')
+eigenvalues preserved:  512
+max of grad d_p:  tensor(0.4062, device='cuda:0')
+min of grad d_p:  tensor(-0.0659, device='cuda:0')
+J_L:  tensor([[-1.6161e-04],
+        [ 2.6379e-03],
+        [-2.4530e-05],
+        [-4.4807e-04],
+        [-2.0852e-05],
+        [ 5.4561e-04],
+        [-1.5688e-05],
+        [-5.7219e-05],
+        [ 6.7390e-05],
+        [-1.8273e-03],
+        [ 1.0593e-05],
+        [ 1.6492e-04],
+        [-1.1075e-04],
+        [ 1.1391e-02],
+        [-2.0268e-05],
+        [-7.4325e-04],
+        [-1.0485e-03],
+        [ 4.8752e-03],
+        [-2.1493e-03],
+        [ 1.3642e-03],
+        [-1.0652e-03],
+        [ 4.4402e-04],
+        [ 2.4783e-02],
+        [ 1.2137e-02],
+        [-5.8899e-02],
+        [-6.5903e-02],
+        [ 4.0616e-01]], device='cuda:0') 
+Jta:  tensor([-6.3558e-05,  2.0336e-03, -4.0057e-05, -2.9579e-04,  1.2671e-04,
+         4.6326e-04, -4.4235e-05, -3.1387e-06,  3.7586e-05, -1.5952e-03,
+         3.8029e-05,  1.7298e-04, -5.6270e-05,  8.8384e-03, -6.0164e-05,
+        -6.4951e-04, -1.1355e-03,  4.2530e-03, -2.1533e-03,  8.4093e-04,
+        -1.1826e-03,  2.1252e-04,  2.3794e-02,  1.2812e-02, -5.9605e-02,
+        -6.5575e-02,  4.0616e-01], device='cuda:0')
+max|min: (J_L, Jta/N)  (0.40615710616111755, 0.40615710616111755, ratio: 1.0)|(-0.06590314954519272, -0.06557467579841614)
+
+ check Jacobi res:  torch.Size([27]) max:  tensor(0.0026, device='cuda:0') mean:  tensor(0.0002, device='cuda:0') min:  tensor(-0.0007, device='cuda:0') norm:  tensor(0.0031, device='cuda:0') MSE:  tensor(0.0001, device='cuda:0')
+BAD Jacobian OCCURS!
+
+ check NTK dimension reduction res:  torch.Size([27, 1]) max:  tensor(0.0004, device='cuda:0') mean:  tensor(6.1741e-05, device='cuda:0') min:  tensor(1.4739e-06, device='cuda:0') norm:  tensor(0.0005, device='cuda:0') MSE:  tensor(2.0149e-05, device='cuda:0')
+Shape check:  torch.Size([27, 1])
+max of d_p_list:  tensor(0.0583, device='cuda:0')
+min of d_p_list:  tensor(-0.0170, device='cuda:0')
+Epoch:  3  
+Training Loss: 0.1449114978313446
+Test Loss:  0.1666150689125061
+Test Acc:  0.0
+Valid Loss:  0.14585594832897186
+Valid Acc:  0.0
+local minima detector shape:  (2,)
+Preserved_eigens number check:  512
+ 30%|███       | 3/10 [00:07<00:16,  2.34s/it]Epoch:   4
+max of Lambda2 tensor(538.8975, device='cuda:0')
+min of Lambda2 tensor(0.0100, device='cuda:0')
+eigenvalues preserved:  512
+max of grad d_p:  tensor(0.4044, device='cuda:0')
+min of grad d_p:  tensor(-0.0648, device='cuda:0')
+J_L:  tensor([[-1.2133e-04],
+        [ 1.0085e-03],
+        [-2.1720e-05],
+        [-3.3605e-04],
+        [-1.4405e-05],
+        [ 2.0037e-04],
+        [-1.3826e-05],
+        [-3.8674e-05],
+        [ 8.1080e-05],
+        [-2.6641e-03],
+        [ 1.2146e-05],
+        [ 2.2596e-04],
+        [-6.4834e-05],
+        [ 6.7294e-03],
+        [-1.3319e-05],
+        [-4.4947e-04],
+        [-1.4421e-03],
+        [ 2.9349e-03],
+        [-1.7981e-03],
+        [ 2.5186e-04],
+        [-1.2089e-03],
+        [ 3.3217e-05],
+        [ 2.0934e-02],
+        [ 1.3939e-02],
+        [-6.0892e-02],
+        [-6.4814e-02],
+        [ 4.0439e-01]], device='cuda:0') 
+Jta:  tensor([-2.9388e-05,  7.4818e-04, -3.8825e-05, -2.0649e-04,  1.0945e-04,
+         1.6155e-04, -4.1989e-05,  1.1768e-05,  5.1724e-05, -2.2142e-03,
+         4.4972e-05,  2.2830e-04, -3.5378e-05,  5.1005e-03, -3.9539e-05,
+        -3.8830e-04, -1.4963e-03,  2.5378e-03, -1.8215e-03, -6.0777e-05,
+        -1.3270e-03, -1.8627e-04,  2.0230e-02,  1.4517e-02, -6.1358e-02,
+        -6.4509e-02,  4.0439e-01], device='cuda:0')
+max|min: (J_L, Jta/N)  (0.4043947756290436, 0.4043947756290436, ratio: 1.0)|(-0.06481395661830902, -0.06450910866260529)
+
+ check Jacobi res:  torch.Size([27]) max:  tensor(0.0016, device='cuda:0') mean:  tensor(9.1478e-05, device='cuda:0') min:  tensor(-0.0006, device='cuda:0') norm:  tensor(0.0021, device='cuda:0') MSE:  tensor(7.8023e-05, device='cuda:0')
+BAD Jacobian OCCURS!
+
+ check NTK dimension reduction res:  torch.Size([27, 1]) max:  tensor(0.0002, device='cuda:0') mean:  tensor(3.0943e-05, device='cuda:0') min:  tensor(2.2353e-07, device='cuda:0') norm:  tensor(0.0002, device='cuda:0') MSE:  tensor(9.0583e-06, device='cuda:0')
+Shape check:  torch.Size([27, 1])
+max of d_p_list:  tensor(0.0791, device='cuda:0')
+min of d_p_list:  tensor(-0.0316, device='cuda:0')
+Epoch:  4  
+Training Loss: 0.14417798817157745
+Test Loss:  0.16589383780956268
+Test Acc:  0.0
+Valid Loss:  0.14515715837478638
+Valid Acc:  0.0
+local minima detector shape:  (3,)
+Preserved_eigens number check:  512
+ 40%|████      | 4/10 [00:09<00:13,  2.32s/it]Epoch:   5
+max of Lambda2 tensor(538.9722, device='cuda:0')
+min of Lambda2 tensor(0.0100, device='cuda:0')
+eigenvalues preserved:  512
+max of grad d_p:  tensor(0.4028, device='cuda:0')
+min of grad d_p:  tensor(-0.0633, device='cuda:0')
+J_L:  tensor([[-8.3064e-05],
+        [-2.4737e-04],
+        [-1.9599e-05],
+        [-2.5256e-04],
+        [-1.0554e-05],
+        [-7.3417e-05],
+        [-1.2226e-05],
+        [-2.4363e-05],
+        [ 1.0538e-04],
+        [-3.9756e-03],
+        [ 1.4930e-05],
+        [ 3.2589e-04],
+        [-1.3356e-05],
+        [ 2.2622e-03],
+        [-4.3187e-06],
+        [-1.4875e-04],
+        [-2.0776e-03],
+        [ 9.6775e-04],
+        [-1.2967e-03],
+        [-5.8691e-04],
+        [-1.3286e-03],
+        [-6.5433e-04],
+        [ 1.6403e-02],
+        [ 1.6615e-02],
+        [-6.3044e-02],
+        [-6.3308e-02],
+        [ 4.0280e-01]], device='cuda:0') 
+Jta:  tensor([-2.8166e-05, -2.1555e-04, -3.4476e-05, -1.2038e-04,  7.5515e-05,
+        -7.9372e-05, -3.6489e-05,  2.4399e-05,  7.1815e-05, -3.1311e-03,
+         5.4330e-05,  3.1973e-04, -5.7462e-06,  1.5558e-03, -1.1294e-05,
+        -1.2078e-04, -2.0707e-03,  7.7846e-04, -1.3726e-03, -7.1092e-04,
+        -1.4853e-03, -8.1322e-04,  1.6022e-02,  1.7117e-02, -6.3273e-02,
+        -6.3022e-02,  4.0280e-01], device='cuda:0')
+max|min: (J_L, Jta/N)  (0.40279674530029297, 0.40279674530029297, ratio: 1.0)|(-0.06330844759941101, -0.06327281892299652)
+
+ check Jacobi res:  torch.Size([27]) max:  tensor(0.0007, device='cuda:0') mean:  tensor(1.6875e-06, device='cuda:0') min:  tensor(-0.0008, device='cuda:0') norm:  tensor(0.0014, device='cuda:0') MSE:  tensor(5.0867e-05, device='cuda:0')
+BAD Jacobian OCCURS!
+ 40%|████      | 4/10 [00:11<00:17,  2.90s/it]
+Traceback (most recent call last):
+  File "/nishome/yui/ModifiedNGD/train.py", line 368, in <module>
+    train(model,mode, lr_decay=True)
+  File "/nishome/yui/ModifiedNGD/train.py", line 195, in train
+    optimizer.step()
+  File "/nishome/yui/anaconda3/envs/ng/lib/python3.12/site-packages/torch/optim/optimizer.py", line 391, in wrapper
+    out = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/nishome/yui/anaconda3/envs/ng/lib/python3.12/site-packages/torch/optim/optimizer.py", line 76, in _use_grad
+    ret = func(self, *args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nishome/yui/ModifiedNGD/utils/modifiedNG.py", line 113, in step
+    test_solve = torch.linalg.solve(K@K, J@test_gradient)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch._C._LinAlgError: torch.linalg.solve: The solver failed because the input matrix is singular.
