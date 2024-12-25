@@ -3,22 +3,30 @@ import numpy as np
 import os   
 
 
-def generate_synthetic():
+def generate_synthetic(N=1024):
     device='cpu'
-    DATA = torch.rand(512+128+128, device=device)*2*np.pi
-    train_data = DATA[:512].reshape(-1,1)
-    valid_data = DATA[512:512+128].reshape(-1,1)
-    test_data  = DATA[512+128:].reshape(-1,1)
+    DATA = torch.rand(N, device=device)*2*np.pi
+    train_data = DATA[:int(0.5*N)].reshape(-1,1)
+    valid_data = DATA[int(0.5*N):int(0.75*N)].reshape(-1,1)
+    test_data  = DATA[int(0.75*N):].reshape(-1,1)
     print('Mean train/test/valid: ', torch.mean(train_data), torch.mean(test_data), torch.mean(valid_data))
     # monte_data = torch.rand(1024, device=device)*2*np.pi
 
+
+    def f_label(x):
+        label = 0
+        # for i in range(1, 6):
+        #     label = label + torch.pow(torch.tensor([0.1]),i)*torch.pow(x,i)
+        # label = torch.exp(0.5*torch.cos(torch.sin(5*x)))
+        label = torch.sin(2*x)
+        return label
     # train_data = torch.stack([torch.cos(train_data), torch.sin(train_data)]).T
     # valid_data  = torch.stack([torch.cos(valid_data), torch.sin(valid_data)]).T
     # test_data  = torch.stack([torch.cos(test_data), torch.sin(test_data)]).T
     # monte_data = torch.stack([torch.cos(monte_data), torch.sin(monte_data)]).T
-    train_label = torch.cos(train_data)*torch.sin(train_data)
-    valid_label  = torch.cos(valid_data)*torch.sin(valid_data)
-    test_label  = torch.cos(test_data)*torch.sin(test_data)
+    train_label = f_label(train_data)
+    valid_label  = f_label(valid_data)
+    test_label  = f_label(test_data)
     # monte_label = (monte_data[:,[0]]*monte_data[:,[1]])
     print(f'Train info: \n train data shape: {train_data.shape}, \n train lable shape: {train_label.shape}, \n positive / negative: {float(torch.sum(train_label)/train_label.shape[0])} / {float((train_label.shape[0]-torch.sum(train_label))/train_label.shape[0])}')
     print(f'Test info: \n test data shape: {test_data.shape}, \n test lable shape: {test_label.shape}, , \n positive / negative: {float(torch.sum(test_label)/test_label.shape[0])} / {float((test_label.shape[0]-torch.sum(test_label))/test_label.shape[0])}')
@@ -30,7 +38,7 @@ def generate_synthetic():
         sigma = 10**(u-2)
         perturbed_train_data = train_data + train_data*(2*np.pi-train_data)*(2*torch.rand(*train_data.shape) -1.)*np.sqrt(sigma)*45/2/(2*np.pi)**4
         np.save(save_path+'train_data.npy', perturbed_train_data.numpy())
-        print('Discrenpacy norm error: ', torch.linalg.norm(torch.cos(perturbed_train_data)*torch.sin(perturbed_train_data) - train_label))
+        print('Discrenpacy norm error: ', torch.linalg.norm(f_label(perturbed_train_data) - train_label))
         np.save(save_path+'valid_data.npy', valid_data.numpy())
         np.save(save_path+'test_data.npy', test_data.numpy())
         np.save(save_path+'train_label.npy', train_label.numpy())
@@ -44,7 +52,7 @@ def generate_synthetic():
         # print('dsadas', np.power(10., -delta)*torch.randn(*train_data.shape))
         perturbed_train_data = train_data + 0.05*np.sqrt(sigma)*torch.randn(*train_data.shape)
         np.save(save_path+'train_data.npy', perturbed_train_data.numpy())
-        print('Discrenpacy norm error: ', torch.linalg.norm(torch.cos(perturbed_train_data)*torch.sin(perturbed_train_data) - train_label))
+        print('Discrenpacy norm error: ', torch.linalg.norm(f_label(perturbed_train_data) - train_label))
         np.save(save_path+'valid_data.npy', valid_data.numpy())
         np.save(save_path+'test_data.npy', test_data.numpy())
         np.save(save_path+'train_label.npy', train_label.numpy())
@@ -54,7 +62,7 @@ def generate_synthetic():
     if os.path.isdir(save_path) is False:
         os.mkdir(save_path)
     np.save(save_path+'train_data.npy', train_data.numpy())
-    print('Discrenpacy norm error: ', torch.linalg.norm(torch.cos(train_data)*torch.sin(train_data) - train_label))
+    print('Discrenpacy norm error: ', torch.linalg.norm(f_label(train_data) - train_label))
     np.save(save_path+'valid_data.npy', valid_data.numpy())
     np.save(save_path+'test_data.npy', test_data.numpy())
     np.save(save_path+'train_label.npy', train_label.numpy())

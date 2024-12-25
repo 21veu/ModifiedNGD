@@ -4,13 +4,26 @@ from scipy.optimize import minimize
 
 # NGD = torch.stack(torch.load('J_NGD.pt'))
 # MNGD = torch.stack(torch.load('J_MNGD.pt'))
+J = 1e-6*torch.randn(512,532609)
+# J = torch.concat([J, J+1e-4*torch.randn(256,532609)], dim=0)
+alpha = torch.randn(512)
+print('shape check: ', J.shape, alpha.shape)
+K = torch.matmul(J, J.T)
+U, Lambda2, Vh = torch.linalg.svd(K)
+uTa = (U.T @ alpha.detach().clone())
+Solved_true = torch.linalg.solve(K@K, K@alpha)
+Solved_true = (J.T@Solved_true).reshape(-1,1)
+criterion = (U.T@(J@Solved_true)).reshape(-1)/(uTa)
+print("Criterion check: ", criterion, torch.sum(criterion>0))
 
-J_L = torch.load('P_check_in_modified.pt').reshape(-1)
-Jta = torch.load('P_check_in_optimizer.pt').reshape(-1)
-print("shape: ", J_L.shape, Jta.shape)
-print('Max: ', torch.max(J_L), torch.max(Jta))
-print('Min: ', torch.min(J_L), torch.min(Jta))
-print('Difference: \n', 'norm: ', torch.linalg.norm(J_L-Jta), '\nabs (max, min, mean): ', torch.max(torch.abs(J_L-Jta)), torch.min(torch.abs(J_L-Jta)), torch.mean(torch.abs(J_L-Jta)))
+
+
+# J_L = torch.load('P_check_in_modified.pt').reshape(-1)
+# Jta = torch.load('P_check_in_optimizer.pt').reshape(-1)
+# print("shape: ", J_L.shape, Jta.shape)
+# print('Max: ', torch.max(J_L), torch.max(Jta))
+# print('Min: ', torch.min(J_L), torch.min(Jta))
+# print('Difference: \n', 'norm: ', torch.linalg.norm(J_L-Jta), '\nabs (max, min, mean): ', torch.max(torch.abs(J_L-Jta)), torch.min(torch.abs(J_L-Jta)), torch.mean(torch.abs(J_L-Jta)))
 
 # J = torch.randn(64,1986, device='cuda')
 # K = J@J.T

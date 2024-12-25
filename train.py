@@ -22,6 +22,7 @@ parser.add_argument('-Dev', '--device', type=str, choices=['cpu', 'cuda'], defau
 parser.add_argument('-DN', '--data_name', type=str, default='synthetic')
 parser.add_argument('-Sig', '--sigma', type=int, default=1)
 parser.add_argument('-u', '--u', type=int, default=1)
+parser.add_argument('-LR', '--lr', type=float, default=1.)
 parser.add_argument('-SGD', '--SGD', default=False, action='store_true')
 parser.add_argument('-NGD', '--NGD', default=False, action='store_true')
 parser.add_argument('-MNGD', '--MNGD', default=False, action='store_true')
@@ -61,8 +62,8 @@ scaler = torch.GradScaler("cuda", init_scale=2**32)
 # lossfunc = torch.nn.CrossEntropyLoss()
 
 class local_minima_detector():
-    def __init__(self, window_length=5, threshold=1e-1):
-        self.local_minima_window = np.array([],dtype=np.float64)
+    def __init__(self, window_length=5, threshold=1e-3):
+        self.local_minima_window = np.array([])
         self.window_length = window_length
         self.threshold = threshold
 
@@ -81,9 +82,10 @@ class local_minima_detector():
             self.local_minima_window[-1]  = loss_present
             local_mean = np.mean(self.local_minima_window)
             print('std: ', np.std(self.local_minima_window), '\nthres: ', local_mean*self.threshold)
-            indicator = np.std(self.local_minima_window) < local_mean*self.threshold
+            indicator = np.abs(self.local_minima_window[-1] - local_mean) < local_mean*self.threshold
+            # indicator = np.std(self.local_minima_window) < local_mean*self.threshold
             if indicator:
-                self.local_minima_window = np.array([],dtype=np.float64)
+                self.local_minima_window = np.array([])
                 return True
             else:
                 return False
@@ -95,10 +97,8 @@ def train(model, mode='SGD', lr_decay=False):
     #定义损失函数和优化器
     
     # lossfunc = torch.nn.BCEWithLogitsLoss()
-    if mode == 'SGD':
-        lr = 0.025
-    else:
-        lr = 0.5
+    lr = args.lr
+    print('Learning rate is: ', lr)
     # 开始训练
     Train_loss = []
     Test_loss = []
@@ -122,6 +122,8 @@ def train(model, mode='SGD', lr_decay=False):
         print('Epoch:  ', epoch)
         # MNGD optimizer
         if mode in ['NGD', 'MNGD']:
+            # model.eval()
+            model.train()
             train_data = []
             train_label = []
             for data, target in train_loader:
@@ -165,21 +167,23 @@ def train(model, mode='SGD', lr_decay=False):
             Valid_loss.append(valid_loss)
 
         for data, target in train_loader:
+            model.train()
             optimizer.zero_grad()   # 清空上一步的残余更新参数值
             output = model(data)    # 得到预测值
             # print('OUTPUT CHECK: ', torch.max(output), torch.min(output), '\nTARGET: ', torch.max(target), torch.min(target))
             loss = 0.5*lossfunc(output,target.reshape(output.shape))  # 计算两者的误差
-            # scaler.scale(loss).backward(create_graph=False, retain_graph=False)         # 误差反向传播, 计算参数更新值
+            scaler.scale(loss).backward(create_graph=False, retain_graph=False)         # 误差反向传播, 计算参数更新值
             # print("LOSS: ", loss, "alpha^2/2N: ", alpha.shape, output.shape, 0.5*torch.linalg.norm(output-target.reshape(output.shape))**2/output.shape[0], 0.5*torch.linalg.norm(alpha)**2/alpha.shape[0], output-OUTPUT.reshape(output.shape))
-            # scaler.step(optimizer)        # 将参数更新值施加到 net 的 parameters 上
+            scaler.step(optimizer)        # 将参数更新值施加到 net 的 parameters 上
 
-            loss.backward(create_graph=False, retain_graph=False)
+            # loss.backward(create_graph=False, retain_graph=False)
 
-            optimizer.step()
+            # optimizer.step()
             # print(data.size(0))
-            # scaler.update()
+            scaler.update()
 
         for data, target in train_loader:
+            model.eval()
             output = model(data)    # 得到预测值
             # print('OUTPUT CHECK: ', torch.max(output), torch.min(output), '\nTARGET: ', torch.max(target), torch.min(target))
             loss = 0.5*lossfunc(output,target.reshape(output.shape))
@@ -259,6 +263,7 @@ def train(model, mode='SGD', lr_decay=False):
 # 在valid set上调试网络
 def valid(model):
     # lossfunc = torch.nn.MSELoss()
+    model.eval()
     correct = 0
     valid_loss = 0.
     with torch.no_grad():  # 训练集中不需要反向传播
@@ -283,6 +288,7 @@ def valid(model):
 
 # 在数据集上测试神经网络
 def test(model):
+    model.eval()
     correct = 0
     total = 0
     test_loss = 0.
@@ -308,6 +314,7 @@ def test(model):
     return test_acc, test_loss
 
 def test_train(model):
+    model.eval()
     correct = 0
     total = 0
     test_loss = 0.
@@ -334,7 +341,7 @@ def test_train(model):
 
 
 if __name__ == '__main__':
-    for i in range(2191,2192):
+    for i in range(2191,2214):
         global seed 
 
         seed = i

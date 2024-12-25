@@ -6,6 +6,7 @@ mydate=$(date +"%Y_%m_%d_%H_%M_%S")
 device=cuda
 dataname=htru2
 n_epochs=300
+lr=0.1
 batch_size=128
 perturb_mode=original
 sigma=1
@@ -18,6 +19,7 @@ python train.py \
 --device $device \
 --data_name $dataname \
 --n_epochs $n_epochs \
+--lr $lr \
 --batch_size $batch_size \
 --perturb_mode $perturb_mode \
 --sigma $sigma \

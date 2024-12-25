@@ -14,7 +14,8 @@ mydate=$(date +"%Y_%m_%d_%H_%M_%S")
 
 device=cuda
 dataname=synthetic
-n_epochs=10
+n_epochs=1000
+lr=0.01
 batch_size=1024
 perturbmode=original
 sigma=2
@@ -30,15 +31,16 @@ fi
 
 
 
-CUDA_VISIBLE_DEVICES=1 python train.py \
+CUDA_VISIBLE_DEVICES=0 python train.py \
 --date $mydate \
 --device $device \
 --data_name $dataname \
 --n_epochs $n_epochs \
+--lr $lr \
 --batch_size $batch_size \
 --perturb_mode $perturbmode \
 --sigma $sigma \
 --u $u \
---MNGD \
+--NGD \
 >./log/"${title}_${mydate}".out 2>&1 
 

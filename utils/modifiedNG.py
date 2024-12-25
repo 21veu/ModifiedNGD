@@ -113,8 +113,8 @@ class ModifiedNGD(Optimizer):
         # print('Shape check: ', torch.matmul(J.T, torch.matmul(J, test_solve)).shape, test_gradient.shape)
         res = torch.abs(torch.matmul(J.T, torch.matmul(J, test_solve)) - test_gradient)
         print('\n check NTK dimension reduction res: ', res.shape, 'max: ', torch.max(res), 'mean: ', torch.mean(res), 'min: ', torch.min(res), 'norm: ', torch.linalg.norm(res), 'MSE: ', torch.linalg.norm(res)/res.shape[0])
-        sigma02 = 1e-2
-        d_p_list = torch.linalg.solve(K@(U@torch.diag_embed(0.9*Lambda2_modified/Lambda2+0.1)@U.T)@K, J@reshaped_d_p*sigma02*J.shape[0])
+        sigma02 = 1.
+        d_p_list = torch.linalg.solve(K@(U@torch.diag_embed(Lambda2_modified/Lambda2+0.1)@U.T)@K, J@reshaped_d_p*sigma02*J.shape[0])
         # d_p_list = torch.linalg.solve((self.F_modified[0]@self.F_modified[0].T) @ (self.F_modified[0]@self.F_modified[0].T) + (torch.rand(1, device=self.F_modified[0].device) *0.9 + 0.1) *self.F_modified[0]@self.F_modified[0].T, self.F_modified[0]@reshaped_d_p*self.F_modified[1])
         d_p_list = (J.T)@d_p_list
         learningrate = group['lr']
